@@ -60,8 +60,8 @@ all: main-build
 main-build: Padelec_main_uc_software.elf secondary-outputs
 
 # Tool invocations
-Padelec_main_uc_software.elf Padelec_main_uc_software.map: $(OBJS) $(USER_OBJS) /home/ismail-uavia/workspace/ismail/project_stm32/Padelec_main_uc_software/STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Padelec_main_uc_software.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/ismail-uavia/workspace/ismail/project_stm32/Padelec_main_uc_software/STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Padelec_main_uc_software.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Padelec_main_uc_software.elf Padelec_main_uc_software.map: $(OBJS) $(USER_OBJS) /home/ismail-uavia/workspace/ismail/project_stm32/padelec_project/STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Padelec_main_uc_software.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/home/ismail-uavia/workspace/ismail/project_stm32/padelec_project/STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Padelec_main_uc_software.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
