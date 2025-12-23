@@ -1,0 +1,903 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="ledOnButton_1">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>260</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    border-radius: 12px;
+    border: 2px solid #555555;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: white;
+}
+
+/* État OFF (rouge) */
+QPushButton[ledState=&quot;off&quot;] {
+    background-color: #ff4d4d;
+    border: 2px solid #b30000;
+}
+
+/* État ON (vert) */
+QPushButton[ledState=&quot;on&quot;] {
+    background-color: #00ff00;
+    border: 2px solid #00aa00;
+}</string>
+    </property>
+    <property name="text">
+     <string>ON</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="verticalSlider_pwm1">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>270</y>
+      <width>31</width>
+      <height>160</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QSlider::groove:vertical {
+    background: #ffffff;
+    width: 8px;
+    border-radius: 4px;
+    margin: 10px 0; /* ajoute un espace en haut et en bas */
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(
+        x1:0, y1:1,
+        x2:0, y2:0,
+        stop:0 #0072ff,
+        stop:1 #00c6ff
+    );
+    border-radius: 4px;
+}
+
+QSlider::sub-page:vertical {
+    background: #ffffff;
+    border-radius: 4px;
+}
+
+QSlider::handle:vertical {
+    background: #ffffff;
+    border: 2px solid #0072ff;
+    height: 20px;
+    margin: -5px 0; /* ajusté pour rester dans le groove */
+    border-radius: 10px;
+}
+</string>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="verticalSlider_pwm2">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>270</y>
+      <width>31</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QSlider::groove:vertical {
+    background: #ffffff;
+    width: 8px;
+    border-radius: 4px;
+    margin: 10px 0; /* ajoute un espace en haut et en bas */
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(
+        x1:0, y1:1,
+        x2:0, y2:0,
+        stop:0 #0072ff,
+        stop:1 #00c6ff
+    );
+    border-radius: 4px;
+}
+
+QSlider::sub-page:vertical {
+    background: #ffffff;
+    border-radius: 4px;
+}
+
+QSlider::handle:vertical {
+    background: #ffffff;
+    border: 2px solid #0072ff;
+    height: 20px;
+    margin: -5px 0; /* ajusté pour rester dans le groove */
+    border-radius: 10px;
+}
+</string>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="pwm_value1">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>440</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>%</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="pwm_value2">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>440</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>%</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="pwm_value3">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>440</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>%</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcdNumber_ia">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>260</y>
+      <width>64</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber {
+    background-color: #1e1e1e;       /* fond sombre */
+    color: #00c6ff;                  /* chiffres lumineux bleu */
+    border-radius: 10px;             /* coins arrondis */
+    border: 2px solid #0072ff;       /* contour */
+    padding: 5px;
+    selection-background-color: #00c6ff;
+}
+
+QLCDNumber::segment {
+    color: #00c6ff;                  /* couleur segments */
+}
+
+QLCDNumber::segment:off {
+    color: #2c2f33;                  /* segments éteints */
+}
+</string>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Filled</enum>
+    </property>
+    <property name="intValue" stdset="0">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>320</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Ib (A)</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>400</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Ic (A)</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>210</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Power Voltage (V)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>340</y>
+      <width>181</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Motor Velocity (RPM)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="connectButton">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>90</y>
+      <width>131</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton#connectButton {
+    background-color: #2edb0f;
+    color: white;
+    border-radius: 12px;
+    border: 2px solid #005bb5;
+    padding: 6px 12px;
+    font-weight: bold;
+}
+
+QPushButton#connectButton:hover {
+    background-color: #3bf21b;
+}
+
+QPushButton#connectButton:pressed {
+    background-color: #168004;
+}</string>
+    </property>
+    <property name="text">
+     <string>Connect</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="disconnectButton">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>90</y>
+      <width>131</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton#disconnectButton {
+    background-color: #ff4d4d;
+    color: white;
+    border-radius: 8px;
+    border: 2px solid #b30000;
+    padding: 6px 12px;
+    font-weight: bold;
+}
+
+QPushButton#disconnectButton:hover {
+    background-color: #ff6666;
+}
+
+QPushButton#disconnectButton:pressed {
+    background-color: #b30000;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Disconnect</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="verticalSlider_pwm3">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>270</y>
+      <width>31</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QSlider::groove:vertical {
+    background: #ffffff;
+    width: 8px;
+    border-radius: 4px;
+    margin: 10px 0; /* ajoute un espace en haut et en bas */
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(
+        x1:0, y1:1,
+        x2:0, y2:0,
+        stop:0 #0072ff,
+        stop:1 #00c6ff
+    );
+    border-radius: 4px;
+}
+
+QSlider::sub-page:vertical {
+    background: #ffffff;
+    border-radius: 4px;
+}
+
+QSlider::handle:vertical {
+    background: #ffffff;
+    border: 2px solid #0072ff;
+    height: 20px;
+    margin: -5px 0; /* ajusté pour rester dans le groove */
+    border-radius: 10px;
+}
+</string>
+    </property>
+    <property name="maximum">
+     <number>100</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="nrf_state">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>100</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QCheckBox {
+    spacing: 0px; /* pas d’espace texte / indicateur */
+    background: transparent;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px; /* cercle parfait */
+    border: 2px solid #555555; /* contour gris */
+    background-color: #ff0000; /* rouge par défaut (OFF) */
+}
+</string>
+    </property>
+    <property name="text">
+     <string>    NRF</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcdNumber_ib">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>340</y>
+      <width>64</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber {
+    background-color: #1e1e1e;       /* fond sombre */
+    color: #00c6ff;                  /* chiffres lumineux bleu */
+    border-radius: 10px;             /* coins arrondis */
+    border: 2px solid #0072ff;       /* contour */
+    padding: 5px;
+    selection-background-color: #00c6ff;
+}
+
+QLCDNumber::segment {
+    color: #00c6ff;                  /* couleur segments */
+}
+
+QLCDNumber::segment:off {
+    color: #2c2f33;                  /* segments éteints */
+}
+</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcdNumber_ic">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>420</y>
+      <width>64</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber {
+    background-color: #1e1e1e;       /* fond sombre */
+    color: #00c6ff;                  /* chiffres lumineux bleu */
+    border-radius: 10px;             /* coins arrondis */
+    border: 2px solid #0072ff;       /* contour */
+    padding: 5px;
+    selection-background-color: #00c6ff;
+}
+
+QLCDNumber::segment {
+    color: #00c6ff;                  /* couleur segments */
+}
+
+QLCDNumber::segment:off {
+    color: #2c2f33;                  /* segments éteints */
+}
+</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcdNumber_voltage">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>250</y>
+      <width>131</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber {
+    background-color: #1e1e1e;       /* fond sombre */
+    color: #00c6ff;                  /* chiffres lumineux bleu */
+    border-radius: 10px;             /* coins arrondis */
+    border: 2px solid #0072ff;       /* contour */
+    padding: 5px;
+    selection-background-color: #00c6ff;
+}
+
+QLCDNumber::segment {
+    color: #00c6ff;                  /* couleur segments */
+}
+
+QLCDNumber::segment:off {
+    color: #2c2f33;                  /* segments éteints */
+}
+</string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="lcdNumber_velocity">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>380</y>
+      <width>131</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber {
+    background-color: #1e1e1e;       /* fond sombre */
+    color: #00c6ff;                  /* chiffres lumineux bleu */
+    border-radius: 10px;             /* coins arrondis */
+    border: 2px solid #0072ff;       /* contour */
+    padding: 5px;
+    selection-background-color: #00c6ff;
+}
+
+QLCDNumber::segment {
+    color: #00c6ff;                  /* couleur segments */
+}
+
+QLCDNumber::segment:off {
+    color: #2c2f33;                  /* segments éteints */
+}
+</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ledOnButton_2">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>340</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    border-radius: 12px;
+    border: 2px solid #555555;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: white;
+}
+
+/* État OFF (rouge) */
+QPushButton[ledState=&quot;off&quot;] {
+    background-color: #ff4d4d;
+    border: 2px solid #b30000;
+}
+
+/* État ON (vert) */
+QPushButton[ledState=&quot;on&quot;] {
+    background-color: #00ff00;
+    border: 2px solid #00aa00;
+}</string>
+    </property>
+    <property name="text">
+     <string>ON</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ledOnButton_3">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>420</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    border-radius: 12px;
+    border: 2px solid #555555;
+    padding: 8px 16px;
+    font-weight: bold;
+    color: white;
+}
+
+/* État OFF (rouge) */
+QPushButton[ledState=&quot;off&quot;] {
+    background-color: #ff4d4d;
+    border: 2px solid #b30000;
+}
+
+/* État ON (vert) */
+QPushButton[ledState=&quot;on&quot;] {
+    background-color: #00ff00;
+    border: 2px solid #00aa00;
+}</string>
+    </property>
+    <property name="text">
+     <string>ON</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>320</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>LED 2</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>400</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>LED 3</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>240</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Ubuntu</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>PWM 1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>240</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Ubuntu</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>PWM 2</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>240</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Ubuntu</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>PWM 3</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>240</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Ia (A)</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>240</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>LED 1</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>10</y>
+      <width>691</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>MICROCONTROLLOR TESTER</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="esp32_state">
+    <property name="geometry">
+     <rect>
+      <x>670</x>
+      <y>140</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QCheckBox {
+    spacing: 0px; /* pas d’espace texte / indicateur */
+    background: transparent;
+}
+
+QCheckBox::indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px; /* cercle parfait */
+    border: 2px solid #555555; /* contour gris */
+    background-color: #ff0000; /* rouge par défaut (OFF) */
+}
+
+</string>
+    </property>
+    <property name="text">
+     <string>    ESP32</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
