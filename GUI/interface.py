@@ -3,7 +3,46 @@ from PyQt5.QtWidgets import QApplication
 import random
 import threading
 import time
+import serial
 
+
+class SerialThread(threading.Thread):
+    def __init__(self, port="COM3", baudrate=115200):
+        super().__init__()
+        self.port = port
+        self.baudrate = baudrate
+        self.running = True
+        self.ser = None
+
+    def run(self):
+        try:
+            self.ser = serial.Serial(self.port, self.baudrate, timeout=0.1)
+            print(f"Connecté à {self.port}")
+        except serial.SerialException:
+            print(f"Impossible de se connecter à {self.port}")
+            return
+
+        while self.running:
+            try:
+                # Envoie du caractère 'A'
+                self.ser.write(b"A")
+                print("Envoyé : A")
+            except serial.SerialException:
+                print("Erreur d'écriture")
+                break
+
+            time.sleep(1)  # envoi toutes les 1 seconde
+
+        self.close_serial()
+
+    def close_serial(self):
+        if self.ser and self.ser.is_open:
+            self.ser.close()
+            print(f"Déconnecté de {self.port}")
+
+    def stop(self):
+        self.running = False
+        self.join()
 
 def random_float(x, y):
     return random.uniform(x, y)
@@ -47,6 +86,7 @@ def on_close():
     print("Thread will stop...")
     stop_event.set()
     thread.join(2)
+    thread_stm_serial.join(2)
 
 def background_task(stop_event):
     while not stop_event.is_set():
@@ -105,6 +145,9 @@ update_velocity(350)
 
 thread = threading.Thread(target=background_task, args=(stop_event,), daemon=True)
 thread.start()
+
+thread_stm_serial = SerialThread(port="COM3", baudrate=115200)
+thread_stm_serial.start()
 
 window.show()
 app.aboutToQuit.connect(on_close)
