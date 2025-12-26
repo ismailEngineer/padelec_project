@@ -885,6 +885,36 @@ QCheckBox::indicator {
      <string>    ESP32</string>
     </property>
    </widget>
+   <zorder>lcdNumber_voltage</zorder>
+   <zorder>ledOnButton_1</zorder>
+   <zorder>verticalSlider_pwm1</zorder>
+   <zorder>verticalSlider_pwm2</zorder>
+   <zorder>pwm_value1</zorder>
+   <zorder>pwm_value2</zorder>
+   <zorder>pwm_value3</zorder>
+   <zorder>lcdNumber_ia</zorder>
+   <zorder>label_11</zorder>
+   <zorder>label_12</zorder>
+   <zorder>label_13</zorder>
+   <zorder>label_14</zorder>
+   <zorder>connectButton</zorder>
+   <zorder>disconnectButton</zorder>
+   <zorder>verticalSlider_pwm3</zorder>
+   <zorder>nrf_state</zorder>
+   <zorder>lcdNumber_ib</zorder>
+   <zorder>lcdNumber_ic</zorder>
+   <zorder>lcdNumber_velocity</zorder>
+   <zorder>ledOnButton_2</zorder>
+   <zorder>ledOnButton_3</zorder>
+   <zorder>label_16</zorder>
+   <zorder>label_17</zorder>
+   <zorder>label_18</zorder>
+   <zorder>label_19</zorder>
+   <zorder>label_20</zorder>
+   <zorder>label_21</zorder>
+   <zorder>label_22</zorder>
+   <zorder>label</zorder>
+   <zorder>esp32_state</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
