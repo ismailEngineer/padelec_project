@@ -13,25 +13,46 @@ class SerialThread(threading.Thread):
         self.baudrate = baudrate
         self.running = True
         self.ser = None
+        self.pwm_slider_values = [0,0,0]
+
+    def set_pwm_value(self,value,id_pwm):
+        self.pwm_slider_values[id_pwm-1] = value
 
     def run(self):
         try:
-            self.ser = serial.Serial(self.port, self.baudrate, timeout=0.1)
+            self.ser = serial.Serial(self.port, self.baudrate, timeout=0.5)
             print(f"Connecté à {self.port}")
         except serial.SerialException:
             print(f"Impossible de se connecter à {self.port}")
             return
-
+        id_pwm = 0
         while self.running:
             try:
-                # Envoie du caractère 'A'
-                self.ser.write(b"A")
-                print("Envoyé : A")
+                # 🔼 Envoi de la commande PWM1 à 25%
+                if id_pwm > 2 :
+                    time.sleep(1)
+                    id_pwm = 0
+                cmd = f"PWM;{id_pwm+1};{self.pwm_slider_values[id_pwm]}\n"
+                id_pwm +=1
+                # cmd = "A"
+                self.ser.write(cmd.encode("utf-8"))
+                print("Envoyé :", cmd.strip())
+
+                # 🔽 Attente de la réponse STM32
+                response = self.ser.readline()  # bloque jusqu'au timeout
+                if response:
+                    try:
+                        print("Reçu :", response.decode("utf-8").strip())
+                    except UnicodeDecodeError:
+                        print("Reçu (brut) :", response)
+                else:
+                    print("⚠️ Timeout : aucune réponse du STM32")
+
             except serial.SerialException:
-                print("Erreur d'écriture")
+                print("Erreur série")
                 break
 
-            time.sleep(1)  # envoi toutes les 1 seconde
+            # time.sleep(1)  # envoi toutes les 1 seconde
 
         self.close_serial()
 
@@ -65,9 +86,10 @@ def init_led_buttons(btn):
     btn.setProperty("ledState", "off")
     btn.setText("ON")
 
-def update_label(slider,pwm_label):
+def update_label(slider,pwm_label,id_pwm):
     slider_value = slider.value()
     pwm_label.setText(f"{slider_value}%")
+    thread_stm_serial.set_pwm_value(slider_value,id_pwm)
 
 
 def update_current_measurement(ia,ib,ic):
@@ -127,9 +149,9 @@ pwm_value1 = window.pwm_value1
 pwm_value2 = window.pwm_value2
 pwm_value3 = window.pwm_value3
 
-verticalSlider_pwm1.valueChanged.connect(lambda: update_label(verticalSlider_pwm1,pwm_value1))
-verticalSlider_pwm2.valueChanged.connect(lambda: update_label(verticalSlider_pwm2,pwm_value2))
-verticalSlider_pwm3.valueChanged.connect(lambda: update_label(verticalSlider_pwm3,pwm_value3))
+verticalSlider_pwm1.valueChanged.connect(lambda: update_label(verticalSlider_pwm1,pwm_value1,1))
+verticalSlider_pwm2.valueChanged.connect(lambda: update_label(verticalSlider_pwm2,pwm_value2,2))
+verticalSlider_pwm3.valueChanged.connect(lambda: update_label(verticalSlider_pwm3,pwm_value3,3))
 
 
 lcdNumber_ia = window.lcdNumber_ia
@@ -146,7 +168,7 @@ update_velocity(350)
 thread = threading.Thread(target=background_task, args=(stop_event,), daemon=True)
 thread.start()
 
-thread_stm_serial = SerialThread(port="COM3", baudrate=115200)
+thread_stm_serial = SerialThread(port="/dev/ttyUSB0", baudrate=115200)
 thread_stm_serial.start()
 
 window.show()
