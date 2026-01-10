@@ -21,7 +21,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,6 +44,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -50,18 +54,30 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t adc_in0_current,adc_in1_current,adc_in2_current,adc_in3_voltage;
+
+#define RX_BUFFER_SIZE 64
+
+uint8_t rx_char;
+char rx_buffer[RX_BUFFER_SIZE];
+uint8_t rx_index = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM8_Init(void);
 /* USER CODE BEGIN PFP */
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
+void UART3_SendString(char *str);
+void send_response(char *msg);
+bool set_led(int led, int state);
+bool set_pwm(int channel, int percent);
+void process_command(char *cmd);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -77,7 +93,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-uint16_t counter = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -98,6 +114,7 @@ uint16_t counter = 0;
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_USART3_UART_Init();
   MX_TIM3_Init();
@@ -113,11 +130,9 @@ uint16_t counter = 0;
   HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
 
-  uint16_t period = htim4.Init.Period;
-  uint16_t dead_time = 0;
-  uint16_t pulse1 = 250;
-  uint16_t pulse2 = 500;
-  uint16_t pulse3 = 750;
+  // start interrupt UART3
+  HAL_UART_Receive_IT(&huart3, &rx_char, 1);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -127,41 +142,15 @@ uint16_t counter = 0;
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  /*
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 16384); // 25%
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, 32768); // 50%
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 49152); // 75%
 
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 250); // 25%
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, 500); // 50%
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, 750); // 75%
-
-	  */
-
-	  //__HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, counter);
-	  //__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, counter);
-	  //__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, counter);
-
-	  __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, pulse1 );
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, period - pulse1);
-
-	  __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, pulse2- dead_time);
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, period - pulse2);
-
-	  __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, pulse3- dead_time);
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, period - pulse3 );
-
-
-	  if (counter < 1000){
-		  counter += 10;
-	  }
-	  else counter = 0;
-
+	  // Toggle ALL LEDS
 	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_4);
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
 
+
 	  /*
+	   * ADC READ VALUES
 	  HAL_ADC_Start(&hadc1);
 
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
@@ -178,7 +167,8 @@ uint16_t counter = 0;
 
 	  HAL_ADC_Stop(&hadc1);
 	  */
-	  HAL_Delay(10);
+
+	  HAL_Delay(20);
 
   }
 
@@ -250,14 +240,14 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = ENABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 4;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -513,6 +503,22 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA2_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA2_Stream0_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -555,6 +561,112 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART3) {
+
+        if (rx_char == '\n') {
+            rx_buffer[rx_index] = '\0';  // Fin de chaîne
+
+            process_command(rx_buffer);
+            rx_index = 0;
+
+        } else {
+            if (rx_index < RX_BUFFER_SIZE - 1) {
+                rx_buffer[rx_index++] = rx_char;
+            }
+        }
+
+        HAL_UART_Receive_IT(&huart3, &rx_char, 1);
+
+    }
+}
+
+
+void UART3_SendString(char *str)
+{
+    HAL_UART_Transmit(&huart3, (uint8_t*)str, strlen(str), HAL_MAX_DELAY);
+}
+
+void send_response(char *msg)
+{
+    HAL_UART_Transmit(&huart3, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
+}
+
+bool set_led(int led, int state)
+{
+    if (led == 1) {
+        HAL_GPIO_WritePin(GPIOA,GPIO_PIN_5,
+                          state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        return true;
+    }
+    return false;
+}
+
+bool set_pwm(int channel, int percent)
+{
+    if (percent < 0 || percent > 100) return false;
+
+    uint32_t pulse = (htim4.Init.Period * percent) / 100;
+
+    if (channel == 1) {
+        __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, pulse );
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, htim4.Init.Period - pulse);
+        return true;
+    }
+    else if (channel == 2) {
+        __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, pulse );
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_2, htim4.Init.Period - pulse);
+        return true;
+     }
+    else if (channel == 3) {
+        __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, pulse );
+        __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, htim4.Init.Period - pulse);
+        return true;
+     }
+    return false;
+}
+
+void process_command(char *cmd)
+{
+    char *type = strtok(cmd, ";");
+    char *target = strtok(NULL, ";");
+    char *value = strtok(NULL, ";");
+
+    if (!type || !target || !value) {
+        send_response("KO\n");
+        return;
+    }
+
+    int id = atoi(target);
+    int val = atoi(value);
+    char msg[20];
+
+    // ----- LED -----
+    if (strcmp(type, "LED") == 0) {
+        if (set_led(id, val)) {
+            send_response("OK\n");
+        } else {
+            send_response("KO\n");
+        }
+    }
+
+    // ----- PWM -----
+
+    else if (strcmp(type, "PWM") == 0) {
+        if (set_pwm(id, val)) {
+        	snprintf(msg, sizeof(msg), "OK_%d\r\n", val);
+            send_response(msg);
+        } else {
+            send_response("KO\n");
+        }
+    }
+
+    else {
+        send_response("KO\n");
+    }
+}
+
 
 /* USER CODE END 4 */
 
