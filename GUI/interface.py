@@ -4,6 +4,7 @@ import random
 import threading
 import time
 import serial
+import serial.tools.list_ports
 
 
 class SerialThread(threading.Thread):
@@ -125,6 +126,20 @@ def background_task(stop_event):
         time.sleep(0.5)
 
 
+
+ports = serial.tools.list_ports.comports()
+devices = []
+for p in ports:
+    print(f"""
+Port      : {p.device}
+Description: {p.description}
+HWID      : {p.hwid}
+VID       : {p.vid}
+PID       : {p.pid}
+Fabricant : {p.manufacturer}
+""")
+    devices.append(p.device)
+
 app = QApplication([])
 window = uic.loadUi("UI/main.ui")
 stop_event = threading.Event()
@@ -160,6 +175,14 @@ lcdNumber_ic = window.lcdNumber_ic
 
 lcdNumber_voltage = window.lcdNumber_voltage
 lcdNumber_velocity = window.lcdNumber_velocity
+
+serial_port_liste = window.serial_port_liste
+
+serial_port_liste.addItems(["Choose serial port ... "])
+serial_port_liste.setCurrentText("Choose serial port ... ")
+devices = ["/dev/ttyUSB0","/dev/ttyUSB1"]
+for device in devices : 
+    serial_port_liste.addItems([device])
 
 update_current_measurement(12.1,1.0,0.0)
 update_voltage(32.22)

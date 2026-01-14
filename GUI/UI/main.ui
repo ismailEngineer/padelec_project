@@ -335,7 +335,7 @@ QLCDNumber::segment:off {
    <widget class="QPushButton" name="connectButton">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>350</x>
       <y>90</y>
       <width>131</width>
       <height>61</height>
@@ -366,7 +366,7 @@ QPushButton#connectButton:pressed {
    <widget class="QPushButton" name="disconnectButton">
     <property name="geometry">
      <rect>
-      <x>400</x>
+      <x>490</x>
       <y>90</y>
       <width>131</width>
       <height>61</height>
@@ -885,6 +885,45 @@ QCheckBox::indicator {
      <string>    ESP32</string>
     </property>
    </widget>
+   <widget class="QComboBox" name="serial_port_liste">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>110</y>
+      <width>281</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="currentText">
+     <string extracomment="&lt;serial_port&gt;"/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_23">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>90</y>
+      <width>111</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Ubuntu</family>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
+    <property name="text">
+     <string>Serial Port :</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>lcdNumber_voltage</zorder>
    <zorder>ledOnButton_1</zorder>
    <zorder>verticalSlider_pwm1</zorder>
@@ -915,6 +954,8 @@ QCheckBox::indicator {
    <zorder>label_22</zorder>
    <zorder>label</zorder>
    <zorder>esp32_state</zorder>
+   <zorder>serial_port_liste</zorder>
+   <zorder>label_23</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
