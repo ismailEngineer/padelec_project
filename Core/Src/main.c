@@ -54,7 +54,8 @@ UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 volatile uint16_t adc_in0_current,adc_in1_current,adc_in2_current,adc_in3_voltage;
-
+volatile uint16_t adc_in0, adc_in1;
+uint16_t adc_dma_buf[2];
 #define RX_BUFFER_SIZE 64
 
 uint8_t rx_char;
@@ -129,10 +130,9 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
-
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_dma_buf, 2);
   // start interrupt UART3
   HAL_UART_Receive_IT(&huart3, &rx_char, 1);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -148,25 +148,26 @@ int main(void)
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
 
-
 	  /*
-	   * ADC READ VALUES
+	  //ADC READ VALUES
 	  HAL_ADC_Start(&hadc1);
-
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adc_in0_current = HAL_ADC_GetValue(&hadc1);
 
-	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+	  //HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adc_in1_current = HAL_ADC_GetValue(&hadc1);
+	  HAL_ADC_Stop(&hadc1);
+
 
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adc_in2_current = HAL_ADC_GetValue(&hadc1);
 
 	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
 	  adc_in3_voltage = HAL_ADC_GetValue(&hadc1);
+		*/
 
-	  HAL_ADC_Stop(&hadc1);
-	  */
+	  adc_in0 = adc_dma_buf[0];
+	  adc_in1 = adc_dma_buf[1];
 
 	  HAL_Delay(20);
 
@@ -245,7 +246,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 4;
+  hadc1.Init.NbrOfConversion = 2;
   hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -257,7 +258,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -267,24 +268,6 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 2;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_2;
-  sConfig.Rank = 3;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_3;
-  sConfig.Rank = 4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -556,7 +539,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(YELLOW_LED_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
-
+  GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
   /* USER CODE END MX_GPIO_Init_2 */
 }
 

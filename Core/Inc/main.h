@@ -63,10 +63,6 @@ void Error_Handler(void);
 #define Imes_U_GPIO_Port GPIOA
 #define Imes_V_Pin GPIO_PIN_1
 #define Imes_V_GPIO_Port GPIOA
-#define Imes_W_Pin GPIO_PIN_2
-#define Imes_W_GPIO_Port GPIOA
-#define V_B_mes_Pin GPIO_PIN_3
-#define V_B_mes_GPIO_Port GPIOA
 #define RED_LED_Pin GPIO_PIN_4
 #define RED_LED_GPIO_Port GPIOA
 #define GREEN_LED_Pin GPIO_PIN_5
