@@ -30,22 +30,38 @@ class SerialThread(threading.Thread):
         while self.running:
             try:
                 # 🔼 Envoi de la commande PWM1 à 25%
-                if id_pwm > 2 :
-                    time.sleep(1)
-                    id_pwm = 0
-                cmd = f"PWM;{id_pwm+1};{self.pwm_slider_values[id_pwm]}\n"
-                id_pwm +=1
-                # cmd = "A"
+                for id_pwm in range(3):
+                    cmd = f"PWM;{id_pwm+1};{self.pwm_slider_values[id_pwm]}\n"
+                    self.ser.write(cmd.encode("utf-8"))
+                    #print("Envoyé :", cmd.strip())
+                    # 🔽 Attente de la réponse STM32
+                    response = self.ser.readline()  # bloque jusqu'au timeout
+                    if response:
+                        try:
+                            # print("Reçu :", response.decode("utf-8").strip())
+                            current_pwm_value = response.decode("utf-8").strip().split(":")[1]
+                        except UnicodeDecodeError:
+                            # print("Reçu (brut) :", response)
+                            current_pwm_value = response.split(":")[1]
+                    else:
+                        print("[PWM] ⚠️ Timeout : aucune réponse du STM32")
+                
+                cmd = f"ADC;0;0\n"
                 self.ser.write(cmd.encode("utf-8"))
-                print("Envoyé :", cmd.strip())
-
+                # print("Envoyé :", cmd.strip())
                 # 🔽 Attente de la réponse STM32
                 response = self.ser.readline()  # bloque jusqu'au timeout
                 if response:
                     try:
-                        print("Reçu :", response.decode("utf-8").strip())
+                        #print("Reçu :", response.decode("utf-8").strip())
+                        values = response.decode("utf-8").strip().split(":")[1].split(",")
+                        adc_0 = values[0]
+                        adc_1 = values[1]
+                        # print(f"adc 0 : {adc_0} adc 1 : {adc_1}")
+                        update_current_measurement(float(adc_0),float(adc_1),0.0)
                     except UnicodeDecodeError:
-                        print("Reçu (brut) :", response)
+                        #print("Reçu (brut) :", response)
+                        values = response.split(":")[1].split(",")
                 else:
                     print("⚠️ Timeout : aucune réponse du STM32")
 
@@ -120,9 +136,9 @@ def background_task(stop_event):
         velocity = random_float(0,500)
         voltage = random_float(0,40)
 
-        update_current_measurement(ia,ib,ic)
-        update_voltage(voltage)
-        update_velocity(velocity)
+        # update_current_measurement(ia,ib,ic)
+        # update_voltage(voltage)
+        # update_velocity(velocity)
         time.sleep(0.5)
 
 
@@ -180,13 +196,13 @@ serial_port_liste = window.serial_port_liste
 
 serial_port_liste.addItems(["Choose serial port ... "])
 serial_port_liste.setCurrentText("Choose serial port ... ")
-devices = ["/dev/ttyUSB0","/dev/ttyUSB1"]
+# devices = ["/dev/ttyUSB0","/dev/ttyUSB1"]
 for device in devices : 
     serial_port_liste.addItems([device])
 
 update_current_measurement(12.1,1.0,0.0)
-update_voltage(32.22)
-update_velocity(350)
+update_voltage(24.0)
+update_velocity(0)
 
 thread = threading.Thread(target=background_task, args=(stop_event,), daemon=True)
 thread.start()

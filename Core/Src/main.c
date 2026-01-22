@@ -56,7 +56,11 @@ UART_HandleTypeDef huart3;
 volatile uint16_t adc_in0_current,adc_in1_current,adc_in2_current,adc_in3_voltage;
 volatile uint16_t adc_in0, adc_in1;
 uint16_t adc_dma_buf[2];
+uint16_t adc_values[2];
+float I_current[3];
 #define RX_BUFFER_SIZE 64
+#define ADC_MAX     4095.0f
+#define VREF        3.3f
 
 uint8_t rx_char;
 char rx_buffer[RX_BUFFER_SIZE];
@@ -130,7 +134,7 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_dma_buf, 2);
+  //HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_dma_buf, 2);
   // start interrupt UART3
   HAL_UART_Receive_IT(&huart3, &rx_char, 1);
   /* USER CODE END 2 */
@@ -166,9 +170,9 @@ int main(void)
 	  adc_in3_voltage = HAL_ADC_GetValue(&hadc1);
 		*/
 
-	  adc_in0 = adc_dma_buf[0];
-	  adc_in1 = adc_dma_buf[1];
-
+	  //adc_in0 = adc_dma_buf[0];
+	  //adc_in1 = adc_dma_buf[1];
+	  //send_response("MAIN\n");
 	  HAL_Delay(20);
 
   }
@@ -241,14 +245,14 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = ENABLE;
-  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 2;
-  hadc1.Init.DMAContinuousRequests = ENABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -579,6 +583,36 @@ void send_response(char *msg)
     HAL_UART_Transmit(&huart3, (uint8_t*)msg, strlen(msg), HAL_MAX_DELAY);
 }
 
+float adc_to_current(uint16_t adc)
+{
+    float v_adc = (adc * VREF) / ADC_MAX;
+    float R_SHUNT = 0.1, Gain = 10, current_mes;
+    current_mes = v_adc /(R_SHUNT * Gain);
+    return current_mes;
+}
+
+void read_adc_and_send(void)
+{
+    HAL_ADC_Start(&hadc1);
+
+    for (int i = 0; i < 2; i++)
+    {
+        HAL_ADC_PollForConversion(&hadc1, 10);
+        adc_values[i] = HAL_ADC_GetValue(&hadc1);
+        I_current[i] = adc_to_current(adc_values[i]);
+    }
+
+    HAL_ADC_Stop(&hadc1);
+
+    char tx_buf[64];
+    snprintf(tx_buf, sizeof(tx_buf),
+             "ADC:%.2f,%.2f\r\n",
+			 I_current[0],
+			 I_current[1]);
+
+    HAL_UART_Transmit(&huart3, (uint8_t *)tx_buf, strlen(tx_buf), 100);
+}
+
 bool set_led(int led, int state)
 {
     if (led == 1) {
@@ -637,11 +671,15 @@ void process_command(char *cmd)
         }
     }
 
+    else if (strcmp(type, "ADC") == 0) {
+    	read_adc_and_send();
+    }
+
     // ----- PWM -----
 
     else if (strcmp(type, "PWM") == 0) {
         if (set_pwm(id, val)) {
-        	snprintf(msg, sizeof(msg), "OK_%d\r\n", val);
+        	snprintf(msg, sizeof(msg), "OK:%d\r\n", val);
             send_response(msg);
         } else {
             send_response("KO\n");
