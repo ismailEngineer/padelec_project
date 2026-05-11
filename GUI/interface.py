@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication,QComboBox
 import random
 import threading
 import time
@@ -141,6 +141,9 @@ def background_task(stop_event):
         # update_velocity(velocity)
         time.sleep(0.5)
 
+def connection_to_serial_start():
+    value = serial_port_liste.currentText()
+    print(value)
 
 
 ports = serial.tools.list_ports.comports()
@@ -171,6 +174,8 @@ init_led_buttons(ledOnButton_2)
 ledOnButton_3 = window.ledOnButton_3
 ledOnButton_3.clicked.connect(lambda: toggle_led(ledOnButton_3))
 init_led_buttons(ledOnButton_3)
+connectButton = window.connectButton
+connectButton.clicked.connect(connection_to_serial_start)
 
 verticalSlider_pwm1 = window.verticalSlider_pwm1
 verticalSlider_pwm2 = window.verticalSlider_pwm2
@@ -206,6 +211,8 @@ update_velocity(0)
 
 thread = threading.Thread(target=background_task, args=(stop_event,), daemon=True)
 thread.start()
+
+#port="/dev/ttyUSBXXX"
 
 thread_stm_serial = SerialThread(port="/dev/ttyUSB0", baudrate=115200)
 thread_stm_serial.start()
