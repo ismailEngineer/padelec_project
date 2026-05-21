@@ -59,6 +59,9 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IRQ_Pin GPIO_PIN_0
+#define IRQ_GPIO_Port GPIOC
+#define IRQ_EXTI_IRQn EXTI0_IRQn
 #define Imes_U_Pin GPIO_PIN_0
 #define Imes_U_GPIO_Port GPIOA
 #define Imes_V_Pin GPIO_PIN_1
@@ -69,6 +72,10 @@ void Error_Handler(void);
 #define GREEN_LED_GPIO_Port GPIOA
 #define YELLOW_LED_Pin GPIO_PIN_4
 #define YELLOW_LED_GPIO_Port GPIOC
+#define CE_Pin GPIO_PIN_1
+#define CE_GPIO_Port GPIOB
+#define CSN_Pin GPIO_PIN_12
+#define CSN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
