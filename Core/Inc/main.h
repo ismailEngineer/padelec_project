@@ -59,23 +59,50 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define IRQ_Pin GPIO_PIN_0
-#define IRQ_GPIO_Port GPIOC
-#define IRQ_EXTI_IRQn EXTI0_IRQn
-#define Imes_U_Pin GPIO_PIN_0
-#define Imes_U_GPIO_Port GPIOA
-#define Imes_V_Pin GPIO_PIN_1
-#define Imes_V_GPIO_Port GPIOA
+#define IA_Pin GPIO_PIN_0
+#define IA_GPIO_Port GPIOA
+#define IB_Pin GPIO_PIN_1
+#define IB_GPIO_Port GPIOA
+#define IC_Pin GPIO_PIN_2
+#define IC_GPIO_Port GPIOA
+#define Voltage_Pin GPIO_PIN_3
+#define Voltage_GPIO_Port GPIOA
 #define RED_LED_Pin GPIO_PIN_4
 #define RED_LED_GPIO_Port GPIOA
 #define GREEN_LED_Pin GPIO_PIN_5
 #define GREEN_LED_GPIO_Port GPIOA
+#define HALL_SENSOR_A_Pin GPIO_PIN_6
+#define HALL_SENSOR_A_GPIO_Port GPIOA
 #define YELLOW_LED_Pin GPIO_PIN_4
 #define YELLOW_LED_GPIO_Port GPIOC
-#define CE_Pin GPIO_PIN_1
-#define CE_GPIO_Port GPIOB
-#define CSN_Pin GPIO_PIN_12
-#define CSN_GPIO_Port GPIOB
+#define RX_COM_ESP_Pin GPIO_PIN_5
+#define RX_COM_ESP_GPIO_Port GPIOC
+#define HALL_SENSOR_B_Pin GPIO_PIN_0
+#define HALL_SENSOR_B_GPIO_Port GPIOB
+#define MOSFET_1_1_Pin GPIO_PIN_6
+#define MOSFET_1_1_GPIO_Port GPIOC
+#define MOSFET_2_1_Pin GPIO_PIN_7
+#define MOSFET_2_1_GPIO_Port GPIOC
+#define MOSFET_3_1_Pin GPIO_PIN_8
+#define MOSFET_3_1_GPIO_Port GPIOC
+#define TX_COM_BMS_Pin GPIO_PIN_9
+#define TX_COM_BMS_GPIO_Port GPIOA
+#define RX_COM_BMS_Pin GPIO_PIN_10
+#define RX_COM_BMS_GPIO_Port GPIOA
+#define TX_COM_ESP_Pin GPIO_PIN_10
+#define TX_COM_ESP_GPIO_Port GPIOC
+#define TX_COM_DEBUG_Pin GPIO_PIN_12
+#define TX_COM_DEBUG_GPIO_Port GPIOC
+#define RX_COM_DEBUG_Pin GPIO_PIN_2
+#define RX_COM_DEBUG_GPIO_Port GPIOD
+#define HALL_SENSOR_C_Pin GPIO_PIN_5
+#define HALL_SENSOR_C_GPIO_Port GPIOB
+#define MOSFET_1_2_Pin GPIO_PIN_6
+#define MOSFET_1_2_GPIO_Port GPIOB
+#define MOSFET_2_2_Pin GPIO_PIN_7
+#define MOSFET_2_2_GPIO_Port GPIOB
+#define MOSFET_3_2_Pin GPIO_PIN_8
+#define MOSFET_3_2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

@@ -46,12 +46,12 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-SPI_HandleTypeDef hspi2;
-
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim8;
 
+UART_HandleTypeDef huart5;
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
@@ -83,7 +83,8 @@ static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM8_Init(void);
-static void MX_SPI2_Init(void);
+static void MX_UART5_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void UART3_SendString(char *str);
@@ -133,7 +134,8 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM8_Init();
-  MX_SPI2_Init();
+  MX_UART5_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   // Démarrage PWM
 
@@ -147,7 +149,7 @@ int main(void)
   // start interrupt UART3
   HAL_UART_Receive_IT(&huart3, &rx_char, 1);
 
-  nrf24_init_rx();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -159,40 +161,9 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	  // Toggle ALL LEDS
-	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_4);
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
-
-	  /*
-	  //ADC READ VALUES
-	  HAL_ADC_Start(&hadc1);
-	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-	  adc_in0_current = HAL_ADC_GetValue(&hadc1);
-
-	  //HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-	  adc_in1_current = HAL_ADC_GetValue(&hadc1);
-	  HAL_ADC_Stop(&hadc1);
-
-
-	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-	  adc_in2_current = HAL_ADC_GetValue(&hadc1);
-
-	  HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
-	  adc_in3_voltage = HAL_ADC_GetValue(&hadc1);
-		*/
-
-	  //adc_in0 = adc_dma_buf[0];
-	  //adc_in1 = adc_dma_buf[1];
-	  //send_response("MAIN\n");
-
-	  // NRF reception :
-	  //nrf24_receive_task();
-
-	 NRF_ProcessReceivedData();
-	 HAL_UART_Transmit(&huart3, (uint8_t*)"HELLO\r\n", 7, 100);
-
-
-	  HAL_Delay(20);
+	  //HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_4);
+	  //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	  //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_4);
 
   }
 
@@ -298,44 +269,6 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
-
-}
-
-/**
-  * @brief SPI2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI2_Init(void)
-{
-
-  /* USER CODE BEGIN SPI2_Init 0 */
-
-  /* USER CODE END SPI2_Init 0 */
-
-  /* USER CODE BEGIN SPI2_Init 1 */
-
-  /* USER CODE END SPI2_Init 1 */
-  /* SPI2 parameter configuration*/
-  hspi2.Instance = SPI2;
-  hspi2.Init.Mode = SPI_MODE_MASTER;
-  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi2.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN SPI2_Init 2 */
-
-  /* USER CODE END SPI2_Init 2 */
 
 }
 
@@ -514,6 +447,72 @@ static void MX_TIM8_Init(void)
 }
 
 /**
+  * @brief UART5 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART5_Init(void)
+{
+
+  /* USER CODE BEGIN UART5_Init 0 */
+
+  /* USER CODE END UART5_Init 0 */
+
+  /* USER CODE BEGIN UART5_Init 1 */
+
+  /* USER CODE END UART5_Init 1 */
+  huart5.Instance = UART5;
+  huart5.Init.BaudRate = 115200;
+  huart5.Init.WordLength = UART_WORDLENGTH_8B;
+  huart5.Init.StopBits = UART_STOPBITS_1;
+  huart5.Init.Parity = UART_PARITY_NONE;
+  huart5.Init.Mode = UART_MODE_TX_RX;
+  huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart5.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart5) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART5_Init 2 */
+
+  /* USER CODE END UART5_Init 2 */
+
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief USART3 Initialization Function
   * @param None
   * @retval None
@@ -575,24 +574,16 @@ static void MX_GPIO_Init(void)
   /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, RED_LED_Pin|GREEN_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(YELLOW_LED_GPIO_Port, YELLOW_LED_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, CE_Pin|CSN_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : IRQ_Pin */
-  GPIO_InitStruct.Pin = IRQ_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(IRQ_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : RED_LED_Pin GREEN_LED_Pin */
   GPIO_InitStruct.Pin = RED_LED_Pin|GREEN_LED_Pin;
@@ -607,17 +598,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(YELLOW_LED_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : CE_Pin CSN_Pin */
-  GPIO_InitStruct.Pin = CE_Pin|CSN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
@@ -768,134 +748,6 @@ void process_command(char *cmd)
     }
 }
 
-
-// NRF CODE :
-uint8_t nrf_spi_transfer(uint8_t data)
-{
-    uint8_t rx;
-    HAL_SPI_TransmitReceive(&hspi2, &data, &rx, 1, 100);
-    return rx;
-}
-
-void nrf_write_register(uint8_t reg, uint8_t value)
-{
-    NRF_CSN_LOW();
-    nrf_spi_transfer(0x20 | (reg & 0x1F));
-    nrf_spi_transfer(value);
-    NRF_CSN_HIGH();
-}
-
-void nrf_write_register_multi(uint8_t reg, uint8_t *data, uint8_t size)
-{
-    NRF_CSN_LOW();
-
-    nrf_spi_transfer(0x20 | (reg & 0x1F));
-
-    for(int i = 0; i < size; i++)
-    {
-        nrf_spi_transfer(data[i]);
-    }
-
-    NRF_CSN_HIGH();
-}
-
-uint8_t nrf_read_register(uint8_t reg)
-{
-    uint8_t value;
-
-    NRF_CSN_LOW();
-    nrf_spi_transfer(reg & 0x1F);
-    value = nrf_spi_transfer(0xFF);
-    NRF_CSN_HIGH();
-
-    return value;
-}
-
-void nrf24_init_rx(void)
-{
-    uint8_t address[5] = {'0','0','0','0','1'};
-
-    HAL_Delay(100);
-
-    NRF_CE_LOW();
-    NRF_CSN_HIGH();
-
-    // CONFIG
-    nrf_write_register(0x00, 0x0F);
-
-    // EN_AA
-    nrf_write_register(0x01, 0x01);
-
-    // EN_RXADDR
-    nrf_write_register(0x02, 0x01);
-
-    // CHANNEL
-    nrf_write_register(0x05, 76);
-
-    // RX payload size
-    nrf_write_register(0x11, 32);
-
-    // ADDRESS
-    nrf_write_register_multi(0x0A, address, 5);
-    nrf_write_register_multi(0x10, address, 5);
-
-    NRF_CE_HIGH();
-
-    HAL_Delay(2);
-}
-
-uint8_t nrf_data_ready(void)
-{
-    uint8_t status = nrf_read_register(0x07);
-    return (status & 0x40) ? 1 : 0;
-}
-
-void nrf_read_payload(uint8_t *data, uint8_t len)
-{
-    NRF_CSN_LOW();
-
-    nrf_spi_transfer(0x61); // R_RX_PAYLOAD
-
-    for (int i = 0; i < len; i++)
-        data[i] = nrf_spi_transfer(0xFF);
-
-    NRF_CSN_HIGH();
-
-    // clear RX_DR
-    nrf_write_register(0x07, 0x40);
-}
-
-void nrf24_receive_task(void)
-{
-    if (!nrf_data_ready())
-        return;
-
-    uint8_t buf[32] = {0};
-
-    nrf_read_payload(buf, 32);
-
-    send_response((char*)buf);
-    send_response("\r\n");
-}
-
-void NRF_ProcessReceivedData(void)
-{
-    char rx_data[32] = {0};
-
-    // lecture payload NRF
-    nrf_read_payload((uint8_t*)rx_data, 32);
-
-    // affichage terminal PC via UART3
-    HAL_UART_Transmit(&huart3,
-                      (uint8_t*)rx_data,
-                      strlen(rx_data),
-                      100);
-
-    HAL_UART_Transmit(&huart3,
-                      (uint8_t*)"\r\n",
-                      2,
-                      100);
-}
 
 /* USER CODE END 4 */
 
