@@ -53,7 +53,7 @@ class SerialThread(threading.Thread):
                 response = self.ser.readline()  # bloque jusqu'au timeout
                 if response:
                     try:
-                        #print("Reçu :", response.decode("utf-8").strip())
+                        print("Reçu :", response.decode("utf-8").strip())
                         values = response.decode("utf-8").strip().split(":")[1].split(",")
                         adc_0 = values[0]
                         adc_1 = values[1]
